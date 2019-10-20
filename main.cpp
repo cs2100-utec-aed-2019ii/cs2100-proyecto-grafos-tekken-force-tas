@@ -3,8 +3,9 @@
 #include <vector>
 int main(){
 	Graph<double> g;
-	g.print_nodes();
-	g.p_edges();
+	/*g.print_nodes();
+	g.p_edges();*/
+	g.print_adjacency_list();
 	/*char d = 0;
 	std::cin>>d;
 	std::vector<float> k;

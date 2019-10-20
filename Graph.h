@@ -1,4 +1,3 @@
-//#include "Node.h"
 #include "Edge.h"
 #include <fstream>
 #include <string>
@@ -6,12 +5,13 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
+#include <set>
 template<typename T>
 class Graph{
 private:
 	vector<Node<T>*> nodes;
 	vector<Edge<T>*> edges;
-	//unordered_map<Node<T>*,vector<Edge<T>*>> cc;//aun falta ver esto
+	unordered_map<Node<T>*,std::set<Node<T>*>*> adjacency_list;//aun falta ver esto
 public:
 	Graph() {
 		//for read the file
@@ -31,21 +31,26 @@ public:
 		Edge<T>* temp_edge1 = nullptr;
 		Edge<T>* temp_edge2 = nullptr;
 		Edge<T>* temp_edge3 = nullptr;
+
+		//to create the adjacency list
+		set<Node<T>*>* adj_list = nullptr;
+
 		while(getline(file,line)) {
 			count++;
 			istringstream tokenizer(line);
 			if(count > 6 && count < 11) {
 				getline(tokenizer, _x, ' ');
 				getline(tokenizer, _y, ' ');
-				//getline(tokenizer, z);
 				x = atof(_x.c_str());
 				y = atof(_y.c_str());
 				temp_nodes = new Node<T>(x,y);
-				this->nodes.push_back(temp_nodes);
-				//this->cc[count] = temp_nodes;
+				nodes.push_back(temp_nodes);
+				adj_list = new std::set<Node<T>*>;
+				adjacency_list.insert({temp_nodes, adj_list});
 				temp_nodes = nullptr;
+				adj_list = nullptr;
 			}
-			if(count >= 12 && count < 16) {
+			if(count >= 12 && count < 16) { 
 				getline(tokenizer,helper,' ');
 				getline(tokenizer,node1,' ');
 				getline(tokenizer,node2,' ');
@@ -59,6 +64,12 @@ public:
 				edges.push_back(temp_edge1);
 				edges.push_back(temp_edge2);
 				edges.push_back(temp_edge3);
+				adjacency_list[nodes[n1]]->insert(nodes[n2]);
+				adjacency_list[nodes[n2]]->insert(nodes[n3]);
+				adjacency_list[nodes[n3]]->insert(nodes[n1]);
+				adjacency_list[nodes[n1]]->insert(nodes[n3]);
+				adjacency_list[nodes[n2]]->insert(nodes[n1]);
+				adjacency_list[nodes[n3]]->insert(nodes[n2]);
 				temp_edge1 = nullptr;
 				temp_edge2 = nullptr;
 				temp_edge3 = nullptr;
@@ -75,6 +86,17 @@ public:
 	void p_edges() {
 		for(auto it = this->edges.begin(); it != this->edges.end(); ++it) {
 			(*it)->print_dist();
+		}
+	}
+
+	void print_adjacency_list() {
+		for(auto it = nodes.begin(); it != nodes.end(); ++it) {
+			std::cout << "Node : ";
+			(*it)->print();
+			std::cout << "Adjacent nodes : ";
+			for(auto it2 = adjacency_list[(*it)]->begin(); it2 != adjacency_list[(*it)]->end(); ++it2) {
+				(*it2)->print();
+			}
 		}
 	}
 };
