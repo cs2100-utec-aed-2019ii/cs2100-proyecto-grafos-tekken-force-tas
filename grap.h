@@ -1,4 +1,4 @@
-//#include "Node.h"
+#include "Node.h"
 #include "Edge.h"
 #include <fstream>
 #include <string>
@@ -11,7 +11,7 @@ class Graph{
 private:
 	vector<Node<T>*> nodes;
 	vector<Edge<T>*> edges;
-	//unordered_map<Node<T>*,vector<Edge<T>*>> cc;//aun falta ver esto
+	unordered_map<Node<T>*,vector<Edge<T>*>> cc;//aun falta ver esto
 public:
 	Graph() {
 		//for read the file
@@ -34,22 +34,22 @@ public:
 		while(getline(file,line)) {
 			count++;
 			istringstream tokenizer(line);
-			if(count > 6 && count < 11) {
+			if(count > 6 && count < 12) {
 				getline(tokenizer, _x, ' ');
 				getline(tokenizer, _y, ' ');
 				//getline(tokenizer, z);
 				x = atof(_x.c_str());
 				y = atof(_y.c_str());
 				temp_nodes = new Node<T>(x,y);
-				this->nodes.push_back(temp_nodes);
-				//this->cc[count] = temp_nodes;
+				this->nodes.push_back(temp);
+				this->cc[count] = temp;
 				temp_nodes = nullptr;
 			}
-			if(count >= 12 && count < 16) {
+			if(count >= 12) {
 				getline(tokenizer,helper,' ');
 				getline(tokenizer,node1,' ');
 				getline(tokenizer,node2,' ');
-				getline(tokenizer,node3);
+				getline(tokenizer,node3,' ');
 				n1 = stoi(node1);
 				n2 = stoi(node2);
 				n3 = stoi(node3);
@@ -78,4 +78,3 @@ public:
 		}
 	}
 };
-
