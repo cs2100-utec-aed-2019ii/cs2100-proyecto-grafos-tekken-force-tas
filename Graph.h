@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iostream>
 #include <set>
+#include <utility>
 template<typename T>
 class Graph{
 private:
@@ -14,7 +15,7 @@ private:
 	unordered_map<Node<T>*,std::set<Node<T>*>*> adjacency_list;//aun falta ver esto
 public:
 	Graph() {
-		//for read the file
+		//to read the file
 		fstream file;
 		file.open("pp.vtk");
 		int count = 0;
@@ -98,6 +99,42 @@ public:
 				(*it2)->print();
 			}
 		}
+	}
+
+	bool add_node(T x, T y) {
+		Node<T>* in = new Node<T>(x,y);
+		std::set<Node<T>*>* _in = new std::set<Node<T>*>;
+		for(auto it = nodes.begin(); it != nodes.end(); ++it) {
+			if((*in) == *(*it))
+				return false;
+		}
+		nodes.push_back(insert);
+		adjacency_list.insert({in,_in});
+		return true;
+	}
+
+	bool add_node(Node<T>* in) {
+		std::set<Node<T>*>* _in = new std::set<Node<T>*>;
+		for(auto it = nodes.begin(); it != nodes.end(); ++it) {
+			if((*in) == (*(*it)))
+				return false;
+		}
+		nodes.push_back(in);
+		adjacency_list.insert({in,_in});
+		return true;
+	}
+
+	void add_edge(Node<T>* a, Node<T>* b) {
+		add_node(a);
+		add_node(b);
+		Edge<T>* in = new Edge<T>(a,b);
+		edges.push_back(in);
+		adjacency_list[a]->insert(b);
+		adjacency_list[b]->insert(a);
+	}
+
+	void add_edge(Edge<T>* in) {
+		edges.push_back(in);
 	}
 };
 

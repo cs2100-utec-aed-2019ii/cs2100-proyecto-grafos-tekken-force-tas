@@ -4,18 +4,29 @@ using namespace std;
 template<typename T>
 class Node{
 private:
-	T x;
-	T y;
+	//T x;
+	//T y;
+	pair<T,T> coord;
 public:
 	Node(T _x, T _y) {
-		this->x = _x;
-		this->y = _y;
+		coord = make_pair(_x,_y);
+		/*x = _x;
+		y = _y;*/
 	}
+
 	void print() {
 		cout << x << " " << y << endl;
 	}
 
 	pair<T,T> get_coord() {
-		return make_pair(this->x,this->y);
+		return coord;
+	}
+
+	bool operator==(Node<T>* copy) {
+		return get_coord() == copy->get_coord();
+	}
+
+	bool operator!=(Node<T>* copy) {
+		return get_coord() != copy->get_coord();
 	}
 };

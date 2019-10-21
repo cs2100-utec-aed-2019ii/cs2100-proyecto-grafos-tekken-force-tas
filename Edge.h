@@ -18,4 +18,8 @@ public:
 	void print_dist() {
 		cout << distancia << endl;
 	}
+
+	pair<Node<T>*,Node<T>*> get_nodes() {
+		return vertices;
+	}
 };
