@@ -14,4 +14,5 @@ int main(){
 	}
 	std::cout << k[d] << std::endl;*/
 	return 0;
+	
 }
