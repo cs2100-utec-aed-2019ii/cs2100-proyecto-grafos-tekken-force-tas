@@ -25,6 +25,18 @@ public:
 		e.push_back(insert);
 	}
 
+	void delete_edge(pedge compare) {
+		for(auto it = e.begin(); e != e.end();) {
+			if((*it) == compare) {
+				it = e.erase(it);
+				break;
+			}
+			else {
+				++it;
+			}
+		}
+	}
+
 	Edges get_edges() {
 		return e;
 	}

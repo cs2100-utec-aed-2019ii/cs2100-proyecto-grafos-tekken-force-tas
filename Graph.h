@@ -9,6 +9,7 @@
 #include <set>
 #include <utility>
 #include <queue>
+#include <map>
 
 template<bool T>
 struct Directed_Trait {
@@ -68,6 +69,7 @@ public:
 		}
 		
 		file >> line >> num_nodes >> trash;
+		std::cout << "NUMERO DE NODOS : " << num_nodes << std::endl;
 		for(int i = 0; i < num_nodes; i++) {
 			file >> x >> y >> z;
 			temp_nodes = new node(x,y);
@@ -196,8 +198,11 @@ public:
 
 	void delete_node(t x, t y) {
 		std::pair<t,t> temp(x,y);
+		pnode search = search_node(x,y);
+		Edges borrar;
 		pset temp2 = nullptr;
 		pnode temp3 = nullptr;
+
 		for(auto it = nodes.begin(); it != nodes.end(); ) {
 			if((*(*it)) == temp) {
 				temp3 = (*it);
@@ -207,8 +212,27 @@ public:
 				++it;
 			}
 		}
+		int cont = 0;
+		for(auto it = nodes.begin(); it != nodes.end(); ++it) {
+			std::cout << "Contador : " << cont << std::endl;
+			for(auto it2 = ((*it)->get_edges()).begin(); it2 != ((*it)->get_edges()).end(); ++it2) {
+				if((*(*it2)) == search) {
+				//	it2 = ((*it)->get_edges()).erase(it2);
+					(*it2)->print_weight();
+					search->print();
+					std::cout << "Borrado" << std::endl;
+				}
+				/*else {
+					++it2;
+					std::cout << "No es borrado" << std::endl;
+				}*/
+			}
+			cont++;
+		}
+
 		for(auto it = edges.begin(); it != edges.end(); ) {
 			if((*((*it)->get_nodes().first)) == temp || (*((*it)->get_nodes().second) == temp)) {
+				borrar.push_back((*it));
 				it = edges.erase(it);
 			} else {
 				++it;
@@ -235,9 +259,14 @@ public:
 				}
 			}
 		}
+
 		std::cout << "Nodo eliminado " << x << " " << y << std::endl;
 		delete temp2;
 		delete temp3;
+
+		for(auto it = borrar.begin(); it != borrar.end(); ++it) {
+			delete (*it);
+		}
 	}
 
 	void delete_edge(t x, t y, t _x, t _y) {
@@ -367,5 +396,33 @@ public:
 			return nullptr;
 		}
 	}
+
+	bool isBipartito(){
+        std::map<pnode, int> reg;
+        std::queue<pnode> priority;
+        if (nodes.size() == 0)
+            return true;
+        int color = 1;
+        pnode temp = nullptr;
+        priority.push(nodes[0]);
+        reg.insert({nodes[0], color});
+        while(priority.size() > 0) {
+            reg[priority.front()] = color;
+            for (auto e : (priority.front())->get_edges()) {
+                temp = e->edgePair(priority.front());
+                if (reg[temp] == 0)
+                    priority.push(temp);
+                else {
+                    if (reg[temp] != -color)
+                        return false;
+                }
+            }
+            priority.pop();
+            color = -color;
+        }
+        return true;
+    }
+
+
 };
 

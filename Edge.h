@@ -42,6 +42,15 @@ public:
 			return false;
 	}
 
+	bool operator==(pnode r) {
+		if(from == r || to == r) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	bool operator==(pedge d) {
 		pnode from = d.get_nodes().first;
 		pnode to = d.get_nodes().second;
@@ -52,4 +61,11 @@ public:
 		else
 			return false;
 	}
+
+	pnode edgePair(pnode ptr){
+        if (ptr ==from)
+            return to ;
+        else
+            return from ;
+    }
 };
