@@ -81,7 +81,7 @@ public:
 		std::getline(file,line);
 		std::getline(file,line);
 		
-		file >> line >> num_edges;
+		file >> line >> num_edges >> trash;
 		int ordures;
 		for(int i = 0; i < num_edges; i++) {
 			file >> ordures >> n1 >> n2 >> n3;
