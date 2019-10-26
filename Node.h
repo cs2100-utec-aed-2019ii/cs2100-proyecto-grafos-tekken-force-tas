@@ -25,6 +25,10 @@ public:
 		e.push_back(insert);
 	}
 
+	Edges get_edges() {
+		return e;
+	}
+
 	void print() {
 		std::cout << "(" << coord.first << " " << coord.second << ")" << " ";
 	}
