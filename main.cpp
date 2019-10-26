@@ -10,7 +10,7 @@ int main(){
 	std::cout << g.densidad() << std::endl;
 	std::cout << g.connected() << std::endl;	
 	//g.bipartited();
-	std::cout << g.BFS(10,10) << std::endl;
+	//std::cout << g.BFS(10,10) << std::endl;
 	return 0;
 	
 }

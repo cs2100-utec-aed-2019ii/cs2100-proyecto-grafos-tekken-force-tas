@@ -1,4 +1,3 @@
-//#include "Node.h"
 #include <utility>
 #include <cmath>
 #include <iostream>
@@ -37,6 +36,10 @@ public:
 			return true;
 		else
 			return false;
+	}
+
+	pnode edgePair(pnode ptr){
+		return ptr == from ? to : from ;  
 	}
 
 	bool operator==(pedge d) {
