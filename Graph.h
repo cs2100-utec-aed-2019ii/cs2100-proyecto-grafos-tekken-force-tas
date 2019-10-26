@@ -174,9 +174,12 @@ public:
 		std::pair<t,t> temp(x,y);
 		for(auto it = nodes.begin(); it != nodes.end(); ++it) {
 			if((*(*it)) == temp) {
+				std::cout << "G\n";
 				return *it;
 			}
 		}
+		std::cout << "N\n";
+		return nullptr;
 	}
 
 	bool add_edge(t x, t y, t _x, t _y) {
@@ -289,18 +292,32 @@ public:
 		return true;
 	}
 
-	bool bipartited() {
-		std::map<pnode,char> bipartito;
-		std::queue<pnode> pila;
-		for(auto it = nodes.begin(); it != nodes.end(); ++it) {
-			bipartito.insert({(*it),'N'});
-		}
-		if(connected()) {
-			for()
+	double BFS(t x, t y) {
+		double cont = 0;
+		std::queue<pnode> Bfs;
+		if(search_node(x,y)) {
+			Bfs.push(search_node(x,y));
+			Bfs.front()->set_visited(true);
+			while(!Bfs.empty()) {
+				for(auto it = adjacency_list[Bfs.front()]->begin(); it != adjacency_list[Bfs.front()]->end(); ++it) {
+					if(!((*it)->get_visited())) {
+						(*it)->set_visited(true);
+						cont++;
+						Bfs.push((*it));
+					}
+				}
+				Bfs.pop();
+			}
 		}
 		else {
-			return false;
+			std::cout << "El nodo no existe\n";
+			return cont;
 		}
+		return cont;
 	}
+
+	double DFS() {
+		
+	}	
 };
 

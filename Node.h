@@ -13,6 +13,7 @@ private:
 public:
 	Node(T _x, T _y) {
 		coord = std::make_pair(_x,_y);
+		visited = false;
 	}
 
 	void print() {

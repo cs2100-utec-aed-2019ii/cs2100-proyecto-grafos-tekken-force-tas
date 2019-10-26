@@ -9,6 +9,7 @@ int main(){
 	g.print_adjacency_list();
 	std::cout << g.densidad() << std::endl;
 	std::cout << g.connected() << std::endl;	
-	g.bipartited();
+	//g.bipartited();
+	std::cout << g.BFS(10,10) << std::endl;
 	return 0;
 }
