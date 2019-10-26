@@ -174,11 +174,9 @@ public:
 		std::pair<t,t> temp(x,y);
 		for(auto it = nodes.begin(); it != nodes.end(); ++it) {
 			if((*(*it)) == temp) {
-				std::cout << "G\n";
 				return *it;
 			}
 		}
-		std::cout << "N\n";
 		return nullptr;
 	}
 
@@ -308,6 +306,7 @@ public:
 				}
 				Bfs.pop();
 			}
+			reset_nodes();
 		}
 		else {
 			std::cout << "El nodo no existe\n";
@@ -316,8 +315,48 @@ public:
 		return cont;
 	}
 
-	double DFS() {
-		
+	void reset_nodes() {
+		for(auto it = nodes.begin(); it != nodes.end(); ++it) {
+			(*it)->set_visited(false);
+			(*it)->set_color('N');
+		}
+	}
+
+	Nodes DFS(t x, t y) {
+		std::queue<pnode> Dfs;
+		Nodes dfs;
+		if(search_node(x,y)) {
+			Dfs.push(search_node(x,y));
+			Dfs.front()->set_visited(true);
+			dfs.push_back(Dfs.front());
+			while(!Dfs.empty()) {
+				for(auto it = adjacency_list[Dfs.front()]->begin(); it != adjacency_list[Dfs.front()]->end(); ++it) {
+					if(!((*it)->get_visited())) {
+						(*it)->set_visited(true);
+						dfs.push_back((*it));
+						Dfs.push((*it));
+					}
+				}
+				Dfs.pop();
+			}
+			reset_nodes();
+			if(dfs.size() == nodes.size()) {
+				return dfs;
+			}
+		}
+		else {
+			std::cout << "El nodo no existe\n";
+		}
 	}	
+
+	pset Neighborhood(t x, t y) {
+		pnode search = search_node(x,y);
+		if(search) {
+			return adjacency_list[search];
+		}
+		else {
+			std::cout << "No existe el nodo.\n";
+		}
+	}
 };
 
