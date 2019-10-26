@@ -8,6 +8,8 @@ public:
 	typedef typename Graph::t T;
 private:
 	std::pair<T,T> coord;
+	bool visited;
+	char color;
 public:
 	Node(T _x, T _y) {
 		coord = std::make_pair(_x,_y);
@@ -34,5 +36,21 @@ public:
 
 	bool operator!=(pnode copy) {
 		return get_coord() != copy->get_coord();
+	}
+
+	void set_visited(bool a) {
+		visited = a;
+	}
+
+	bool get_visited() {
+		return visited;
+	}
+
+	void set_color(char c) {
+		color = c;
+	}
+
+	char get_color() {
+		return color;
 	}
 };
