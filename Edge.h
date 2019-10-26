@@ -25,6 +25,10 @@ public:
 		std::cout << weight << std::endl;
 	}
 
+	T get_weight() {
+		return weight;
+	}
+
 	std::pair<pnode,pnode> get_nodes() {
 		return std::make_pair(this->from, this->to);
 	}

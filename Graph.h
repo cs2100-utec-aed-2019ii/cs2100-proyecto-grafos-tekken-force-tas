@@ -328,6 +328,7 @@ public:
 	Nodes DFS(t x, t y) {
 		std::queue<pnode> Dfs;
 		Nodes dfs;
+		Nodes error;
 		if(search_node(x,y)) {
 			Dfs.push(search_node(x,y));
 			Dfs.front()->set_visited(true);
@@ -346,9 +347,13 @@ public:
 			if(dfs.size() == nodes.size()) {
 				return dfs;
 			}
+			else {
+				return error;
+			}
 		}
 		else {
 			std::cout << "El nodo no existe\n";
+			return error;
 		}
 	}	
 
@@ -359,6 +364,7 @@ public:
 		}
 		else {
 			std::cout << "No existe el nodo.\n";
+			return nullptr;
 		}
 	}
 };
