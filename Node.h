@@ -1,21 +1,57 @@
 #include <utility>
 #include <iostream>
-using namespace std;
-template<typename T>
+template<typename Graph>
 class Node{
+public:
+	typedef typename Graph::pnode pnode;
+	typedef typename Graph::node node;
+	typedef typename Graph::t T;
 private:
-	T x;
-	T y;
+	std::pair<T,T> coord;
+	bool visited;
+	char color;
 public:
 	Node(T _x, T _y) {
-		this->x = _x;
-		this->y = _y;
-	}
-	void print() {
-		cout << x << " " << y << endl;
+		coord = std::make_pair(_x,_y);
+		visited = false;
 	}
 
-	pair<T,T> get_coord() {
-		return make_pair(this->x,this->y);
+	void print() {
+		std::cout << "(" << coord.first << " " << coord.second << ")" << " ";
+	}
+
+	std::pair<T,T> get_coord() {
+		return coord;
+	}
+
+	bool operator==(pnode copy) {
+		return get_coord() == copy->get_coord();
+	}
+
+	bool operator==(std::pair<T,T> compare) {
+		if(compare.first == coord.first && compare.second == coord.second)
+			return true;
+		else
+			return false;
+	}
+
+	bool operator!=(pnode copy) {
+		return get_coord() != copy->get_coord();
+	}
+
+	void set_visited(bool a) {
+		visited = a;
+	}
+
+	bool get_visited() {
+		return visited;
+	}
+
+	void set_color(char c) {
+		color = c;
+	}
+
+	char get_color() {
+		return color;
 	}
 };

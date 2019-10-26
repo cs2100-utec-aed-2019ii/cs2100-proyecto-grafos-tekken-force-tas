@@ -2,17 +2,15 @@
 #include "Graph.h"
 #include <vector>
 int main(){
-	Graph<double> g;
-	/*g.print_nodes();
-	g.p_edges();*/
+	Graph<double,false> g("pp.vtk");
 	g.print_adjacency_list();
-	/*char d = 0;
-	std::cin>>d;
-	std::vector<float> k;
-	for(int i = 0; i < 128; i++) {
-		k.push_back((float)i);
-	}
-	std::cout << k[d] << std::endl;*/
+	g.delete_node(10,127);
+	g.delete_edge(10,10,127,10);
+	g.print_adjacency_list();
+	std::cout << g.densidad() << std::endl;
+	std::cout << g.connected() << std::endl;	
+	//g.bipartited();
+	std::cout << g.BFS(10,10) << std::endl;
 	return 0;
 	
 }
