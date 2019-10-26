@@ -354,50 +354,26 @@ public:
 		}
 	}
 
-	bool isBipartito(){
-		std::map<pnode, int> reg;
-		std::queue<pnode> priority;
-		if (nodes.size() == 0)
-			return true;
-		int color = 1;
-		pnode temp = nullptr;
-		priority.push(nodes[0]);
-		reg.insert({nodes[0], color});
-		while(priority.size() > 0) {
-			reg[priority.front()] = color;
-			for (auto e : (priority.front())->get_edges()) {
-				temp = e->edgePair(priority.front());
-				if (reg[temp] == 0)
-					priority.push(temp);
-				else {
-					if (reg[temp] != -color)
-						return false;
-				}
-			}
-			priority.pop();
-			color = -color;
-		}
-		return true;
-	}	    
+	    
 
-	 AList * kruskal() {
-		//ASSERT(is_conexo(), "El grafo no es conexo");
-		std::map<pnode, pnode> reg;
-		std::set<pedge, camp<t,F>> edges;
-		for(auto&& nit : nodes){
-			reg[nit] = 0;
-			for (auto&& eit : nit->edges)
-				edges.insert(eit);
+ AList * kruskal() {
+	//ASSERT(is_conexo(), "El grafo no es conexo");
+	std::map<pnode, pnode> reg;
+	std::set<pedge, camp<t,F> > edges;
+	for(auto&& nit : nodes){
+		reg[nit] = 0;
+		for (auto&& eit : nit->get_edges())
+			edges.insert(eit);
+	}
+	AList new_graph;
+	for (auto it : edges){
+		if (disjoint_set(reg, (it->get_nodes).first, (it->get_nodes).second) )
+					new_graph[(*it)->get_nodes().first]->insert((*it)->get_nodes().first);
 		}
-		AList new_graph;
-		for (auto it : edges){
-			if (disjoint_set(reg, it->first(), it->second()))
-				new_graph->push_edge(it);
-		}
-		edges.clear();
-		reg.clear();
-		return new_graph;
-	}	
+	edges.clear();
+	reg.clear();
+	return new_graph;
+}	
 
 	pset Neighborhood(t x, t y) {
 		pnode search = search_node(x,y);
@@ -409,6 +385,29 @@ public:
 		}
 	}
 	
+	bool disjoint_set(std::map<pnode, pnode> &reg, pnode data_1, pnode data_2) {
+	    pnode par_1 = get_parent(reg, data_1);
+	    pnode par_2 = get_parent(reg, data_2);
+	    
+	    if (par_1 != par_2)
+	        reg[par_1] = par_2;
+	    
+	    return par_1 != par_2;
+	}
+	pnode get_parent(std::map<pnode, pnode> &reg, pnode data) {
+            if (reg[data] == 0) {
+                reg[data] = data;
+                return data;
+            }
+
+            pnode temp = data;
+            
+            while(temp != reg[temp])
+                temp = reg[temp];
+            reg[data] = temp;
+            return temp;
+        }	
+
 };
 
 
@@ -416,11 +415,12 @@ template<typename T, bool F>
 struct camp{
 public:
     bool operator() (Edge<Graph<T,F>>* lhs,Edge<Graph<T,F>>* rhs) const {
-        if (lhs->get_weigth() == rhs->get_weigth()) { //compara pesos 
-            if ( (((lhs->get_nodes).first)->get_coord) ==  (((rhs->get_nodes).first)->get_coord) )
-                return (((lhs->get_nodes).second)->get_coord) < (((rhs->get_nodes).second)->get_coord);
+        if (lhs->get_weigth() == rhs->get_weigth()) { //compara pesos
+
+            if ( (((lhs->get_nodes()).first)->get_coord()) ==  (((rhs->get_nodes()).first)->get_coord()) )
+                return (((lhs->get_nodes()).second)->get_coord()) < (((rhs->get_nodes()).second)->get_coord());
             else
-                return (((lhs->get_nodes).first)->get_coord) <  (((rhs->get_nodes).first)->get_coord);
+                return (((lhs->get_nodes()).first)->get_coord()) <  (((rhs->get_nodes()).first)->get_coord());
         }
         return lhs->get_weigth() < rhs->get_weigth(); // devuelve si derecha es mayor o no 
     }
