@@ -5,21 +5,23 @@
 #include <unordered_map>
 #include <vector>
 #include <sstream>
-#include <iostream> 
+#include <iostream>
 #include <set>
 #include <utility>
 #include <queue>
-
+#include <map>
 template<bool T>
 struct Directed_Trait {
     static const bool directed = true;
 };
-
 template<>
 struct Directed_Trait<false> {
     static const bool directed = false;
 };
-	
+
+template<typename T, bool F>
+struct camp;
+
 template<typename T,bool F>
 class Graph{
 public:
@@ -81,13 +83,16 @@ public:
 		std::getline(file,line);
 		std::getline(file,line);
 		
-		file >> line >> num_edges;
+		file >> line >> num_edges>>trash;
 		int ordures;
 		for(int i = 0; i < num_edges; i++) {
 			file >> ordures >> n1 >> n2 >> n3;
 			temp_edge1 = new edge(nodes[n1],nodes[n2]);
 			temp_edge2 = new edge(nodes[n2],nodes[n3]);
 			temp_edge3 = new edge(nodes[n3],nodes[n1]);
+			nodes[n1]->add_edge(temp_edge1);
+			nodes[n2]->add_edge(temp_edge2);
+			nodes[n3]->add_edge(temp_edge3);
 			edges.push_back(temp_edge1);
 			edges.push_back(temp_edge2);
 			edges.push_back(temp_edge3);
@@ -290,7 +295,6 @@ public:
 		return true;
 	}
 
-
 	double BFS(t x, t y) {
 		double cont = 0;
 		std::queue<pnode> Bfs;
@@ -307,7 +311,7 @@ public:
 				}
 				Bfs.pop();
 			}
-			reset_nodes();
+			reset_nodes(x,y);
 		}
 		else {
 			std::cout << "El nodo no existe\n";
@@ -316,7 +320,7 @@ public:
 		return cont;
 	}
 
-	void reset_nodes() {
+	void reset_nodes(t x, t y) {
 		for(auto it = nodes.begin(); it != nodes.end(); ++it) {
 			(*it)->set_visited(false);
 			(*it)->set_color('N');
@@ -340,7 +344,7 @@ public:
 				}
 				Dfs.pop();
 			}
-			reset_nodes();
+			reset_nodes(x,y);
 			if(dfs.size() == nodes.size()) {
 				return dfs;
 			}
@@ -351,22 +355,22 @@ public:
 	}
 
 	bool isBipartito(){
-		map<pnode, char> reg;
-		queue<pnode> priority;
+		std::map<pnode, int> reg;
+		std::queue<pnode> priority;
 		if (nodes.size() == 0)
 			return true;
-		char color = 1;
-		pnode temp;
+		int color = 1;
+		pnode temp = nullptr;
 		priority.push(nodes[0]);
-		reg[nodes[0]] = color;
+		reg.insert({nodes[0], color});
 		while(priority.size() > 0) {
 			reg[priority.front()] = color;
-			for (edge e : priority.front()->edges) {
-				temp = e.edgePair(priority.front());
-				if (reg[temp->get_data()] == 0)
+			for (auto e : (priority.front())->get_edges()) {
+				temp = e->edgePair(priority.front());
+				if (reg[temp] == 0)
 					priority.push(temp);
 				else {
-					if (reg[temp->get_data()] != -color)
+					if (reg[temp] != -color)
 						return false;
 				}
 			}
@@ -375,6 +379,25 @@ public:
 		}
 		return true;
 	}	    
+
+	 AList * kruskal() {
+		//ASSERT(is_conexo(), "El grafo no es conexo");
+		std::map<pnode, pnode> reg;
+		std::set<pedge, camp<t,F>> edges;
+		for(auto&& nit : nodes){
+			reg[nit] = 0;
+			for (auto&& eit : nit->edges)
+				edges.insert(eit);
+		}
+		AList new_graph;
+		for (auto it : edges){
+			if (disjoint_set(reg, it->first(), it->second()))
+				new_graph->push_edge(it);
+		}
+		edges.clear();
+		reg.clear();
+		return new_graph;
+	}	
 
 	pset Neighborhood(t x, t y) {
 		pnode search = search_node(x,y);
@@ -385,4 +408,20 @@ public:
 			std::cout << "No existe el nodo.\n";
 		}
 	}
+	
+};
+
+
+template<typename T, bool F>
+struct camp{
+public:
+    bool operator() (Edge<Graph<T,F>>* lhs,Edge<Graph<T,F>>* rhs) const {
+        if (lhs->get_weigth() == rhs->get_weigth()) { //compara pesos 
+            if ( (((lhs->get_nodes).first)->get_coord) ==  (((rhs->get_nodes).first)->get_coord) )
+                return (((lhs->get_nodes).second)->get_coord) < (((rhs->get_nodes).second)->get_coord);
+            else
+                return (((lhs->get_nodes).first)->get_coord) <  (((rhs->get_nodes).first)->get_coord);
+        }
+        return lhs->get_weigth() < rhs->get_weigth(); // devuelve si derecha es mayor o no 
+    }
 };

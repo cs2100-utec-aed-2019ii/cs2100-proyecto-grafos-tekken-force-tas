@@ -24,7 +24,9 @@ public:
 	void print_weight() {
 		std::cout << weight << std::endl;
 	}
-
+	T get_weigth(){
+		return weight;
+	}
 	std::pair<pnode,pnode> get_nodes() {
 		return std::make_pair(this->from, this->to);
 	}
@@ -39,7 +41,10 @@ public:
 	}
 
 	pnode edgePair(pnode ptr){
-		return ptr == from ? to : from ;  
+		if (ptr ==from)
+			return to ;
+		else 
+			return from ;
 	}
 
 	bool operator==(pedge d) {
