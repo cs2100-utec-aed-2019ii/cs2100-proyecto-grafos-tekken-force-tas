@@ -88,6 +88,9 @@ public:
 			temp_edge1 = new edge(nodes[n1],nodes[n2]);
 			temp_edge2 = new edge(nodes[n2],nodes[n3]);
 			temp_edge3 = new edge(nodes[n3],nodes[n1]);
+			nodes[n1]->add_edge(temp_edge1);
+			nodes[n2]->add_edge(temp_edge2);
+			nodes[n3]->add_edge(temp_edge3);
 			edges.push_back(temp_edge1);
 			edges.push_back(temp_edge2);
 			edges.push_back(temp_edge3);
@@ -306,7 +309,7 @@ public:
 				}
 				Bfs.pop();
 			}
-			reset_nodes();
+			reset_nodes(x,y);
 		}
 		else {
 			std::cout << "El nodo no existe\n";
@@ -315,7 +318,7 @@ public:
 		return cont;
 	}
 
-	void reset_nodes() {
+	void reset_nodes(t x, t y) {
 		for(auto it = nodes.begin(); it != nodes.end(); ++it) {
 			(*it)->set_visited(false);
 			(*it)->set_color('N');
@@ -339,7 +342,7 @@ public:
 				}
 				Dfs.pop();
 			}
-			reset_nodes();
+			reset_nodes(x,y);
 			if(dfs.size() == nodes.size()) {
 				return dfs;
 			}

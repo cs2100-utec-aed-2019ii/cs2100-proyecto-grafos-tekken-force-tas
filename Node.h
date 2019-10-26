@@ -1,19 +1,28 @@
 #include <utility>
 #include <iostream>
+#include <vector>
 template<typename Graph>
 class Node{
 public:
 	typedef typename Graph::pnode pnode;
 	typedef typename Graph::node node;
 	typedef typename Graph::t T;
+	typedef typename Graph::pedge pedge;
+	typedef typename Graph::edge edge;
+	typedef typename Graph::Edges Edges;
 private:
 	std::pair<T,T> coord;
 	bool visited;
 	char color;
+	Edges e;
 public:
 	Node(T _x, T _y) {
 		coord = std::make_pair(_x,_y);
 		visited = false;
+	}
+
+	void add_edge(pedge insert) {
+		e.push_back(insert);
 	}
 
 	void print() {

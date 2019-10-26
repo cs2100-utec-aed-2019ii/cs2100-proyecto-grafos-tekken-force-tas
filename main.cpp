@@ -18,5 +18,6 @@ int main(){
 	for(auto it = neighborhood->begin(); it != neighborhood->end(); ++it) {
 		(*it)->print();
 	}
+	std::cout << std::endl;
 	return 0;
 }
