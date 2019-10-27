@@ -1,4 +1,3 @@
-//#include "Node.h"
 #include <utility>
 #include <cmath>
 #include <iostream>
@@ -26,6 +25,10 @@ public:
 		std::cout << weight << std::endl;
 	}
 
+	T get_weight() {
+		return weight;
+	}
+
 	std::pair<pnode,pnode> get_nodes() {
 		return std::make_pair(this->from, this->to);
 	}
@@ -39,6 +42,15 @@ public:
 			return false;
 	}
 
+	bool operator==(pnode r) {
+		if(from == r || to == r) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	bool operator==(pedge d) {
 		pnode from = d.get_nodes().first;
 		pnode to = d.get_nodes().second;
@@ -49,4 +61,11 @@ public:
 		else
 			return false;
 	}
+
+	pnode edgePair(pnode ptr){
+        if (ptr ==from)
+            return to ;
+        else
+            return from ;
+    }
 };
