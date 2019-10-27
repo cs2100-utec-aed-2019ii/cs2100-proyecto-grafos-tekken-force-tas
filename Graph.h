@@ -21,6 +21,9 @@ struct Directed_Trait<false> {
     static const bool directed = false;
 };
 	
+template<typename T, bool F>
+struct camp;
+
 template<typename T,bool F>
 class Graph{
 public:
@@ -69,7 +72,6 @@ public:
 		}
 		
 		file >> line >> num_nodes >> trash;
-		std::cout << "NUMERO DE NODOS : " << num_nodes << std::endl;
 		for(int i = 0; i < num_nodes; i++) {
 			file >> x >> y >> z;
 			temp_nodes = new node(x,y);
@@ -82,29 +84,39 @@ public:
 
 		std::getline(file,line);
 		std::getline(file,line);
-		
-		file >> line >> num_edges >> trash;
+		int n;
+		file >> line >> num_edges >> n;
 		int ordures;
-		for(int i = 0; i < num_edges; i++) {
-			file >> ordures >> n1 >> n2 >> n3;
-			temp_edge1 = new edge(nodes[n1],nodes[n2]);
-			temp_edge2 = new edge(nodes[n2],nodes[n3]);
-			temp_edge3 = new edge(nodes[n3],nodes[n1]);
-			nodes[n1]->add_edge(temp_edge1);
-			nodes[n2]->add_edge(temp_edge2);
-			nodes[n3]->add_edge(temp_edge3);
-			edges.push_back(temp_edge1);
-			edges.push_back(temp_edge2);
-			edges.push_back(temp_edge3);
-			adjacency_list[nodes[n1]]->insert(nodes[n2]);
-			adjacency_list[nodes[n2]]->insert(nodes[n3]);
-			adjacency_list[nodes[n3]]->insert(nodes[n1]);
-			adjacency_list[nodes[n1]]->insert(nodes[n3]);
-			adjacency_list[nodes[n2]]->insert(nodes[n1]);
-			adjacency_list[nodes[n3]]->insert(nodes[n2]);
-			temp_edge1 = nullptr;
-			temp_edge2 = nullptr;
-			temp_edge3 = nullptr;
+		for(int i = 0; i < num_edges; i++) {//se cambian el tercer indice del CELLS para cuando querramos crear bipartitos
+			if(n == 1) {//para cuando son 3 coordenadas
+				file >> ordures >> n1 >> n2 >> n3;
+				temp_edge1 = new edge(nodes[n1],nodes[n2]);
+				temp_edge2 = new edge(nodes[n2],nodes[n3]);
+				temp_edge3 = new edge(nodes[n3],nodes[n1]);
+				nodes[n1]->add_edge(temp_edge1);
+				nodes[n2]->add_edge(temp_edge2);
+				nodes[n3]->add_edge(temp_edge3);
+				edges.push_back(temp_edge1);
+				edges.push_back(temp_edge2);
+				edges.push_back(temp_edge3);
+				adjacency_list[nodes[n1]]->insert(nodes[n2]);
+				adjacency_list[nodes[n2]]->insert(nodes[n3]);
+				adjacency_list[nodes[n3]]->insert(nodes[n1]);
+				adjacency_list[nodes[n1]]->insert(nodes[n3]);
+				adjacency_list[nodes[n2]]->insert(nodes[n1]);
+				adjacency_list[nodes[n3]]->insert(nodes[n2]);
+				temp_edge1 = nullptr;
+				temp_edge2 = nullptr;
+				temp_edge3 = nullptr;
+			}
+			if(n == 0) {//para cuando son 2 coordenadas
+				file >> ordures >> n1 >> n2;
+				temp_edge1 = new edge(nodes[n1],nodes[n2]);
+				nodes[n1]->add_edge(temp_edge1);
+				edges.push_back(temp_edge1);
+				adjacency_list[nodes[n1]]->insert(nodes[n2]);
+				adjacency_list[nodes[n2]]->insert(nodes[n1]);
+			}
 		}
 	}
 
@@ -424,5 +436,64 @@ public:
     }
 
 
+	AList * kruskal() {
+		//ASSERT(is_conexo(), "El grafo no es conexo");
+		std::map<pnode, pnode> reg;
+		std::set<pedge, camp<t,F>> edges;
+		for(auto&& nit : nodes){
+			reg[nit] = 0;
+			for (auto&& eit : nit->get_edges())
+				edges.insert(eit);
+		}
+		AList new_graph;
+		for (auto it : edges){
+			if (disjoint_set(reg, (it->get_nodes).first, (it->get_nodes).second) )
+						new_graph[(*it)->get_nodes().first]->insert((*it)->get_nodes().first);
+			}
+		edges.clear();
+		reg.clear();
+		return new_graph;
+	}
+
+
+
+    bool disjoint_set(std::map<pnode, pnode> &reg, pnode data_1, pnode data_2) {
+	    pnode par_1 = get_parent(reg, data_1);
+	    pnode par_2 = get_parent(reg, data_2);
+	    
+	    if (par_1 != par_2)
+	        reg[par_1] = par_2;
+	    
+	    return par_1 != par_2;
+	}
+
+    pnode get_parent(std::map<pnode, pnode> &reg, pnode data) {
+            if (reg[data] == 0) {
+                reg[data] = data;
+                return data;
+            }
+
+            pnode temp = data;
+            
+            while(temp != reg[temp])
+                temp = reg[temp];
+            reg[data] = temp;
+            return temp;
+    }
+
 };
 
+template<typename T, bool F>
+struct camp{
+public:
+    bool operator() (Edge<Graph<T,F>>* lhs,Edge<Graph<T,F>>* rhs) const {
+        if (lhs->get_weigth() == rhs->get_weigth()) { //compara pesos
+
+            if ( (((lhs->get_nodes()).first)->get_coord()) ==  (((rhs->get_nodes()).first)->get_coord()) )
+                return (((lhs->get_nodes()).second)->get_coord()) < (((rhs->get_nodes()).second)->get_coord());
+            else
+                return (((lhs->get_nodes()).first)->get_coord()) <  (((rhs->get_nodes()).first)->get_coord());
+        }
+        return lhs->get_weigth() < rhs->get_weigth(); // devuelve si derecha es mayor o no 
+    }
+};
