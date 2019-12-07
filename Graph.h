@@ -292,7 +292,7 @@ public:
 
     
     auto temp = &nodo2;
-    std::list<Nodo<n_value,e_value>* > final_path;
+    std::vector<Nodo<n_value,e_value>* > final_path;
 /*
     for(auto elem : pred){
       (*(elem.first)).show();
@@ -321,7 +321,7 @@ public:
         pred[temp] = pred[(pred[temp])];
         temp = pred[temp];
     }
-    final_path.push_front(&nodo1);
+    final_path.push_back(&nodo1);
     cout<<"salio dijkstra"<<endl;
     
 
