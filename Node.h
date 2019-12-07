@@ -1,57 +1,84 @@
-#include <utility>
-#include <iostream>
-template<typename Graph>
-class Node{
-public:
-	typedef typename Graph::pnode pnode;
-	typedef typename Graph::node node;
-	typedef typename Graph::t T;
+#include <list>
+
+using namespace std;
+template <typename T, typename E> class Edge;
+
+template<typename T, typename E> 
+class Nodo{
 private:
-	std::pair<T,T> coord;
-	bool visited;
-	char color;
+  T value;
+  list< Edge<T,E> > _edges;
+  double promVecindad;
+
 public:
-	Node(T _x, T _y) {
-		coord = std::make_pair(_x,_y);
-		visited = false;
-	}
+  Nodo(){}
+  explicit Nodo(T val) {
+          this->value=val;
+          this->promVecindad=0;
+  }
+  bool operator==(const Nodo<T,E> &nodo) {
+    return (this->value == nodo.value);
+  } 
 
-	void print() {
-		std::cout << "(" << coord.first << " " << coord.second << ")" << " ";
-	}
+  void show(){
+    std::cout<<this->value;
+  }   
 
-	std::pair<T,T> get_coord() {
-		return coord;
-	}
+  list<Edge<T,E>>& get_edges(){return _edges;}
 
-	bool operator==(pnode copy) {
-		return get_coord() == copy->get_coord();
-	}
+  int get_posx(){return value.x;}
+  int get_posy(){return value.y;}
+  E get_vecindad(){
 
-	bool operator==(std::pair<T,T> compare) {
-		if(compare.first == coord.first && compare.second == coord.second)
-			return true;
-		else
-			return false;
-	}
+    promVecindad = average();
+    return promVecindad;
+  }
 
-	bool operator!=(pnode copy) {
-		return get_coord() != copy->get_coord();
-	}
 
-	void set_visited(bool a) {
-		visited = a;
-	}
+  T get_value(){return value;}
 
-	bool get_visited() {
-		return visited;
-	}
 
-	void set_color(char c) {
-		color = c;
-	}
+  void insert_edge(Edge<T,E> &edge){
+    _edges.push_back(edge); 
+    
+  }
 
-	char get_color() {
-		return color;
-	}
+
+
+  E average(){
+    E av = 0.0;
+    for (auto it=_edges.begin();it!=_edges.end();++it){
+        av += (*it).get_data();
+    }
+    if(av==0) return 0;
+
+    return av/_edges.size() ;
+  }
+
+
+
+
+  void print_edge(){    
+    for (auto it= _edges.begin();it!=_edges.end();++it){
+        ((*it).get_from())->show();
+        cout<<" -> ";
+        ((*it).get_to())->show();
+        cout<<" W:"<<(*it).get_data()<<endl;
+        cout<<endl;
+
+
+    }
+  }
+
+  /*
+  &Nodo operator=(const Nodo &nodo){
+    if (this != &nodo){
+      delete[] ;
+
+
+    }
+    return *this;
+  }
+  */
+
 };

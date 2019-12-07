@@ -1,323 +1,440 @@
-#include "Edge.h"
+#include <SFML/Graphics.hpp>
 #include "Node.h"
-#include <fstream>
+#include "Edge.h"
+#include "Traits.h"
 #include <string>
+#include <algorithm>
 #include <unordered_map>
-#include <vector>
-#include <sstream>
-#include <iostream>																																																													 
-#include <set>
 #include <utility>
-#include <queue>
+#include <map> 
+#include <cmath>
+#include <list>
+using namespace std;
 
-template<bool T>
-struct Directed_Trait {
-    static const bool directed = true;
+#define tamnode 0.3f
+
+template <typename T> 
+class Iterator {
+
+  typedef typename T::n_value n_value;
+  typedef typename T::e_value e_value;
+
+
+  private:
+      Nodo<n_value,e_value> *current;
+
+
+  public:
+    Iterator() : current(nullptr) {};
+    Iterator(Nodo<n_value,e_value> *node) : current(node) {
+      
+      //cout<<(*current).get_posx()<<endl;
+      //cout<<(*current).get_posy()<<endl;
+    };
+    
+    Iterator<T> operator++(){
+
+      //cout<<current->get_posx()<<endl;
+      e_value max = std::numeric_limits<e_value>::min();
+      e_value act_vecindad = (*current).get_vecindad();
+      auto edg = (current->get_edges()).begin();
+      auto ite_max = (current->get_edges()).begin();
+
+      /*
+      for(; edg!=(current->get_edges()).end();edg++){
+        if(max<edg->get_data() and (edg->get_data())<(act_vecindad)){
+          max = edg->get_data();
+          ite_max = edg;
+        }
+        cout<<edg->get_data()<<" - "<<act_vecindad<<" - "<<max<<" - "<<(edg->get_to())->get_posx()<<" - "<<(edg->get_to())->get_posy()<<endl;
+      }
+      */
+
+      current = ite_max->get_to();
+      cout<<"EL VALRO ES "<<(*current).get_posx()<<" - "<<current->get_posy()<<endl;
+
+      return *this;
+    }
+
+    Iterator<T> operator--(){
+      e_value min = std::numeric_limits<e_value>::max();
+      e_value act_vecindad = (*current).get_vecindad();
+      auto edg = (current->get_edges()).begin();
+      auto ite_min = (current->get_edges()).begin();
+
+
+
+      for(; edg!=(current->get_edges()).end();edg++){
+        if(min>edg->get_data() and (edg->get_data())<(act_vecindad)){
+          min = edg->get_data();
+          ite_min = edg;
+        }
+        cout<<edg->get_data()<<" - "<<act_vecindad<<" - "<<max<<" - "<<(edg->get_to())->get_posx()<<" - "<<(edg->get_to())->get_posy()<<endl;
+      }
+
+
+      return *this;
+    }
+
+    Nodo<n_value,e_value> operator*(){
+
+      return *(this->current);
+    } 
+
+
+    
 };
 
-template<>
-struct Directed_Trait<false> {
-    static const bool directed = false;
-};
-	
-template<typename T,bool F>
-class Graph{
-public:
-	typedef Graph<T,F> G;
-	typedef T t;
-	typedef Node<G>* pnode;
-	typedef Node<G> node;
-	typedef Edge<G>* pedge;
-	typedef Edge<G> edge;
-	typedef std::vector<pnode> Nodes;
-	typedef std::vector<pedge> Edges;
-	typedef std::set<pnode>* pset;
-	typedef std::set<pnode> set;
-	typedef std::unordered_map<pnode,pset> AList;
+
+
+
+template< typename T>
+class Graph {
+
 private:
-	Nodes nodes;
-	Edges edges;
-	AList adjacency_list;
+
+  vector<pair<sf::CircleShape *,int>> allcircles;
+  vector<sf::VertexArray *> alledges;
+  typedef typename T::n_value n_value;
+  typedef typename T::e_value e_value;
+  
+
 public:
-	Graph(std::string namefile) {
-		//to read the file
-		std::fstream file;
-		file.open(namefile);
-		std::string line;
 
-		//to create the nodes
-		pnode temp_nodes = nullptr;
-		t x = 0, y = 0, z = 0;
+  list<Nodo<n_value,e_value>> _nodes;
 
-		//to create the edges
-		int n1,n2,n3;
-		pedge temp_edge1 = nullptr;
-		pedge temp_edge2 = nullptr;
-		pedge temp_edge3 = nullptr;
 
-		//to create the adjacency list
-		pset adj_list = nullptr;
+  Nodo<n_value, e_value>& get_node(int pos){
+    int actual = 0;
+    auto it = _nodes.begin();
+    for(;actual!=pos;actual++,it++){}
+    return *it;
+  }
 
-		//auxiliares
-		std::string trash;
-		int num_nodes;
-		int num_edges;
+  vector<sf::VertexArray *>& get_lines(){
+    return alledges;
+  }
 
-		for(int i = 0; i < 5; i++) {
-			std::getline(file,line);
-		}
-		
-		file >> line >> num_nodes >> trash;
-		for(int i = 0; i < num_nodes; i++) {
-			file >> x >> y >> z;
-			temp_nodes = new node(x,y);
-			nodes.push_back(temp_nodes);
-			adj_list = new set;
-			adjacency_list.insert({temp_nodes, adj_list});
-			temp_nodes = nullptr;
-			adj_list = nullptr;
-		}
+  vector<pair<sf::CircleShape *,int>>& get_circles(){
+    return allcircles;
+  }
 
-		std::getline(file,line);
-		std::getline(file,line);
-		
-		file >> line >> num_edges;
-		int ordures;
-		for(int i = 0; i < num_edges; i++) {
-			file >> ordures >> n1 >> n2 >> n3;
-			temp_edge1 = new edge(nodes[n1],nodes[n2]);
-			temp_edge2 = new edge(nodes[n2],nodes[n3]);
-			temp_edge3 = new edge(nodes[n3],nodes[n1]);
-			edges.push_back(temp_edge1);
-			edges.push_back(temp_edge2);
-			edges.push_back(temp_edge3);
-			adjacency_list[nodes[n1]]->insert(nodes[n2]);
-			adjacency_list[nodes[n2]]->insert(nodes[n3]);
-			adjacency_list[nodes[n3]]->insert(nodes[n1]);
-			adjacency_list[nodes[n1]]->insert(nodes[n3]);
-			adjacency_list[nodes[n2]]->insert(nodes[n1]);
-			adjacency_list[nodes[n3]]->insert(nodes[n2]);
-			temp_edge1 = nullptr;
-			temp_edge2 = nullptr;
-			temp_edge3 = nullptr;
-		}
-	}
 
-	Graph() {
+  Iterator<T> begin(){
+    int pos = rand() % _nodes.size();
+    (&get_node(pos))->show();
+    return Iterator<T>(&get_node(pos));
+  }
 
-	}
+  Iterator<Nodo<n_value,e_value>> end(){
+    return Iterator<T>();
+  }
 
-	Graph(const G& copy) {
-		nodes = copy.get_nodes();
-		edges = copy.get_edges();
-		adjacency_list = copy.get_adj_list();
-	}
-		
-	void save() {
 
-	}
+  
 
-	Nodes get_nodes() {
-		return nodes;
-	}
 
-	Edges get_edges() {
-		return edges;
-	}
+  float calculateEuristic(Nodo<n_value,e_value> *from, Nodo<n_value,e_value> *to){
+  
+    float heuristic_value = sqrt(pow(((from->get_posx())-(to->get_posx())),2)+pow(((from->get_posy())-(to->get_posy())),2));
 
-	AList get_adj_list() {
-		return adjacency_list;
-	}
+    return heuristic_value;
+  
+  }
 
-	void print_adjacency_list() {
-		for(auto it = nodes.begin(); it != nodes.end(); ++it) {
-			std::cout << "Node : ";
-			(*it)->print();
-			std::cout << "Adjacent nodes : ";
-			for(auto it2 = adjacency_list[(*it)]->begin(); it2 != adjacency_list[(*it)]->end(); ++it2) {
-				(*it2)->print();
-			}
-			std::cout << "\n";
-		}
-	}
 
-	bool add_node(t x, t y) {
-		pnode in = new node(x,y);
-		pset _in = new set;
-		for(auto it = nodes.begin(); it != nodes.end(); ++it) {
-			if((*in) == *(*it))
-				return false;
-		}
-		nodes.push_back(in);
-		adjacency_list.insert({in,_in});
-		return true;
-	}
+
+
+
+  Graph* Astar(Nodo<n_value, e_value> &from, Nodo<n_value, e_value> &to){
+
+    Graph<T> *graphAstar = new Graph<T>;
+    //cout<<from.get_value()<<" "<<to.get_value()<<endl;
+    Nodo<n_value, e_value> *From = &from;
+    Nodo<n_value, e_value> *current = &from;
+    Nodo<n_value, e_value> *To = &to;
+    
+    unordered_map<Nodo<n_value,e_value>*,bool> status;
+    
+    multimap<float,Nodo<n_value,e_value>*> total_distance;
+    unordered_map<Nodo<n_value,e_value>*,pair<e_value,float>> short_euristic;
+    unordered_map<Nodo<n_value,e_value>*,Nodo<n_value,e_value>*> path;
+
+
+
+    short_euristic[From]=make_pair(0,calculateEuristic(From,To));
+
+    total_distance.insert(make_pair<float,Nodo<n_value,e_value>*&>((short_euristic[From].first + short_euristic[From].second),From));
+    path.insert(make_pair(From,From));
+
+
+    while(current!=To){
+      status[current]=true;
+      for(auto ac = (current->get_edges()).begin();ac!=(current->get_edges()).end();ac++){
+        auto use = ((*ac).get_to());
+        if(status.find(use)!=status.end()){
+          if(status[use]==true){continue;} 
+          e_value temp_short = (short_euristic[current].first)+(*ac).get_data();
+          if(temp_short>=short_euristic[use].first){continue;}
+            short_euristic[use].first = temp_short;
+            path[((*ac).get_to())]=(((*ac).get_from()));
+          }
+
+          else{
+                status[use]=false;
+               
+                short_euristic[use]=make_pair<e_value,float>(((short_euristic[current].first)+(*ac).get_data()),calculateEuristic(use,To));
+                path.insert(make_pair(( ( (*ac).get_to())),( ( (*ac).get_from()))));
+            }
+            total_distance.insert(make_pair<float,Nodo<n_value,e_value>*&>((short_euristic[use].first+short_euristic[use].second),use));
+
+        }
+        for(auto ac = total_distance.begin();ac != total_distance.end();ac++){
+            if((status[ac->second])==false){
+                current = ac->second;
+                break;
+            }
+      }
+    }
+
+    auto temp = To;
+    vector<Nodo<n_value,e_value>*> final_path;
+    while(temp != path[temp] ){
+        final_path.push_back(temp);
+        final_path.push_back(path[temp]);
+        path[temp] = path[path[temp]];
+        temp = path[temp];
+    }
+    final_path.push_back(From);
+
+    cout<<"path size es: "<<final_path.size()<<endl;
+
+    for(int i=1;i<final_path.size();i++){
+        n_value dato1 = final_path[i-1]->get_value();
+        n_value dato2 = final_path[i]->get_value();
+        graphAstar->insert_nodes( dato1);
+        graphAstar->insert_nodes( dato2);
+
+        graphAstar->insert_edges( dato1, dato2);
+    }
+
+    //graphAstar->print();
+
+    //for(auto nod: )
+
+
+    return graphAstar;
+  }
+
+
+
+  Graph *dijkstra( Nodo<n_value,e_value> &nodo1, Nodo<n_value,e_value> &nodo2){
+
+    std::cout<<"from ";
+    nodo1.show();
+    std::cout<<" to ";
+    nodo2.show();
+    cout<<endl;
+
+    std::map< Nodo<n_value,e_value>*, e_value> dijk;
+    std::map<Nodo<n_value,e_value>*,Nodo<n_value,e_value>* > pred;
+    std::map<Nodo<n_value,e_value>*, std::string> color;
+    std::map<Nodo<n_value,e_value>*, e_value> priory_queue;
+    
+    Graph<T> *grafdijk = new Graph<T>;
+
+    //for the nodes save in the maps
+    for (auto it=_nodes.begin();it!=_nodes.end();++it){
+      dijk[&(*it)] = __INT_MAX__;
+      color[&(*it)] = "W";
+      priory_queue[&(*it)]=dijk[&(*it)];
+    }
+    auto iti = std::find(_nodes.begin(),_nodes.end(), nodo1);
+    auto ito = std::find(_nodes.begin(),_nodes.end(), nodo2);
+    
+    dijk[&(*iti)] = 0;
+    pred[&(*iti)]= &(*iti);
+    priory_queue[&(*iti)]=dijk[&(*iti)];
+    Nodo<n_value,e_value> * ptr_nodo;
+
+    std::vector<Nodo<n_value,e_value>*> vecnodo ;
+    while(!priory_queue.empty()){
+      std::pair<Nodo<n_value,e_value>*, int> min = *min_element(priory_queue.begin(), priory_queue.end(), compare);
+
+     // cout<<min.first<<" "<<min.second<<endl;
+
+      priory_queue.erase(min.first);
+      ptr_nodo = min.first;
+
+      //(*ptr_nodo).show(); 
+      //cout<<dijk[ptr_nodo]<<endl;
+      // ptr_nodo.get_edges // get each edge from list edges
+      for (auto it=(ptr_nodo->get_edges()).begin(); it!=(ptr_nodo->get_edges()).end();++it){
+        if (dijk[ptr_nodo]+ (*it).get_data() < dijk[(*it).get_to()]){
+          dijk[(*it).get_to()]= dijk[ptr_nodo]+ (*it).get_data();
+          priory_queue[(*it).get_to()]=dijk[(*it).get_to()];
+          pred[(*it).get_to()]= ptr_nodo;
+        }
+
+        color[ptr_nodo] = "B";
+      }
+      //vecnodo.push_back(ptr_nodo);
+
+    }
+    /*
+    auto *temp = &nodo2;
+    while(temp!=nullptr){
+      cout<<temp->get_value().x<<" - "<<temp->get_value().y<<endl;
+      pred[temp] = pred[pred[temp]];
+      temp = pred[temp];
+    }
+    */
+
+    
+    auto temp = &nodo2;
+    std::list<Nodo<n_value,e_value>* > final_path;
 /*
-	void add_edge(pnode a, pnode b) {
-		add_node(a);
-		add_node(b);
-		pedge in = new edge(a,b);
-		edges.push_back(in);
-		adjacency_list[a]->insert(b);
-		adjacency_list[b]->insert(a);
-	}
+    for(auto elem : pred){
+      (*(elem.first)).show();
+      (*(elem.second)).show();
+    } */
+    /*
+    for(auto elem : dijk){
+      (*(elem.first)).show();
+      std::cout << " "<<((elem.second))<< "\n";
+    } */
 
-	bool add_edge(pedge in) {
-		edges.push_back(in);
-		std::pair<pnode,pnode> get = in.get_nodes();
-		add_node(get.first);
-		add_node(get.second);
-	}
-*/
+    /*
+    for(auto elem : pred){
+      (*(elem.first)).show();      
+      (*(elem.second)).show();
+      cout<<endl;
 
-	pnode search_node(t x, t y) {
-		std::pair<t,t> temp(x,y);
-		for(auto it = nodes.begin(); it != nodes.end(); ++it) {
-			if((*(*it)) == temp) {
-				std::cout << "G\n";
-				return *it;
-			}
-		}
-		std::cout << "N\n";
-		return nullptr;
-	}
+    }
+    */
 
-	bool add_edge(t x, t y, t _x, t _y) {
-		pnode in1 = new node(x,y);
-		pnode in2 = new node(_x,_y);
-		add_node(in1);
-		add_node(in2);
-		pedge in3 = new edge(in1,in2);
-		edges.push_back(in3);
-		adjacency_list[in1]->insert(in2);
-		adjacency_list[in2]->insert(in1);
-	}
+    
+    while(temp != &nodo1 ){
+      
+        final_path.push_back(temp);
+        final_path.push_back((pred[temp]));
+        pred[temp] = pred[(pred[temp])];
+        temp = pred[temp];
+    }
+    final_path.push_front(&nodo1);
+    cout<<"salio dijkstra"<<endl;
+    
 
-	void delete_node(t x, t y) {
-		std::pair<t,t> temp(x,y);
-		pset temp2 = nullptr;
-		pnode temp3 = nullptr;
-		for(auto it = nodes.begin(); it != nodes.end(); ) {
-			if((*(*it)) == temp) {
-				temp3 = (*it);
-				it = nodes.erase(it);
-				break;
-			} else {
-				++it;
-			}
-		}
-		for(auto it = edges.begin(); it != edges.end(); ) {
-			if((*((*it)->get_nodes().first)) == temp || (*((*it)->get_nodes().second) == temp)) {
-				it = edges.erase(it);
-			} else {
-				++it;
-			}
-		}
+    /*
+    auto temp = To;
+    vector<Nodo<n_value,e_value>*> final_path;
+    while(temp != path[temp] ){
+        final_path.push_back(temp);
+        final_path.push_back(path[temp]);
+        path[temp] = path[path[temp]];
+        temp = path[temp];
+    }
+    */
 
-		for(auto it = adjacency_list.begin(); it != adjacency_list.end(); ) {
-			if((*(it->first)) == temp) {
-				temp2 = it->second;
-				it = adjacency_list.erase(it);
-				break;
-			} else {
-				++it;
-			}
-		}
+    //crea grafo
+    for(int i=0;i<final_path.size()-1;i++){
+        n_value dato1 = final_path[i]->get_value();
+        n_value dato2 = final_path[++i]->get_value();
+        grafdijk->insert_nodes( dato1);
+        grafdijk->insert_nodes( dato2);
 
-		for(auto it = temp2->begin(); it != temp2->end(); ++it) {
-			for(auto it2 = adjacency_list[(*it)]->begin(); it2 != adjacency_list[(*it)]->end(); ) {
-				if((*(*it2)) == temp) {
-					it2 = adjacency_list[(*it)]->erase(it2);
-					break;
-				} else {
-					++it2;
-				}
-			}
-		}
-		std::cout << "Nodo eliminado " << x << " " << y << std::endl;
-		delete temp2;
-		delete temp3;
-	}
+        grafdijk->insert_edges(dato1, dato2);
+    } 
 
-	void delete_edge(t x, t y, t _x, t _y) {
-		pnode n1 = search_node(x,y);
-		pnode n2 = search_node(_x,_y);
-		std::pair<pnode,pnode> search(n1,n2);
-		for(auto it = edges.begin(); it != edges.end(); ) {
-			if((*(*it)) == search) {
-				it = edges.erase(it);
-			} else {
-				++it;
-			}
-		}
+    
+  for (auto it=grafdijk->_nodes.begin(); it!=grafdijk->_nodes.end(); ++it){
+    (*it).show();
+    cout<<endl;
+  }
+  
 
-		for(auto it = adjacency_list[n1]->begin(); it != adjacency_list[n1]->end(); ) {
-			if((*(*it)) == n2) {
-				it = adjacency_list[n1]->erase(it);
-				break;
-			} else {
-				++it;
-			}
-		}
+    //grafdijk->print();
+    return grafdijk;
+  }
+  static bool compare(std::pair<Nodo<n_value,e_value>* ,int> i, pair<Nodo<n_value,e_value>*, int> j) {
+        return i.second < j.second;
+    }
+  
+  
 
-		for(auto it = adjacency_list[n2]->begin(); it != adjacency_list[n2]->end(); ) {
-			if((*(*it)) == n1) {
-				it = adjacency_list[n2]->erase(it);
-				break;
-			} else {
-				++it;
-			}
-		}
-	}
+  void lectura(std::string filename){
+    std::vector<n_value> vecn = Trait<n_value>::loadNodos(filename);
+    for (auto it= vecn.begin(); it!=vecn.end();++it){
+      insert_nodes(*it);
+    }
+    std::vector<pair<int,int>> vece = Trait<n_value>::loadEdges(filename);
+    for (auto it= vece.begin();it!=vece.end();++it){
+      insert_edges(vecn[(*it).first], vecn[(*it).second]) ;
+    }
+  }
 
-	double grade_of_node(t x, t y) {
-		pnode n1 = search_node(x,y);
-		double count = adjacency_list[n1]->size();
-		return count;
-	}
 
-	double densidad() {
-		double densidad = (double)(2*edges.size())/((nodes.size()*(nodes.size()-1)));
-		return densidad;
-	}
 
-	bool connected() {
-		for(auto it = adjacency_list.begin(); it != adjacency_list.end(); ) {
-			if((it->second)->size() == 0) {
-				return false;
-			} else {
-				++it;
-			}
-		}
-		return true;
-	}
+  void insert_nodes(const n_value& val){
+    Nodo<n_value, e_value> node(val);
+    sf::CircleShape *newnode = new sf::CircleShape(tamnode);
+    newnode->setFillColor(sf::Color(47,79,79));
+    newnode->setPosition(val.x,val.y);
+    allcircles.push_back(make_pair(newnode,allcircles.size() ) );
+    _nodes.push_back(node);
+  }  
 
-	double BFS(t x, t y) {
-		double cont = 0;
-		std::queue<pnode> Bfs;
-		if(search_node(x,y)) {
-			Bfs.push(search_node(x,y));
-			Bfs.front()->set_visited(true);
-			while(!Bfs.empty()) {
-				for(auto it = adjacency_list[Bfs.front()]->begin(); it != adjacency_list[Bfs.front()]->end(); ++it) {
-					if(!((*it)->get_visited())) {
-						(*it)->set_visited(true);
-						cont++;
-						Bfs.push((*it));
-					}
-				}
-				Bfs.pop();
-			}
-		}
-		else {
-			std::cout << "El nodo no existe\n";
-			return cont;
-		}
-		return cont;
-	}
 
-	double DFS() {
-		
-	}	
+  void insert_edges( n_value& i,  n_value& o){
+    double dist = o-i;
+    Nodo<n_value, e_value> nodei(i);
+    auto iti = std::find(_nodes.begin(),_nodes.end(), nodei);
+    if (iti != _nodes.end()){       
+      Nodo<n_value, e_value> nodeo(o);
+      auto ito = std::find(_nodes.begin(),_nodes.end(), nodeo);
+      if (ito!=_nodes.end()){ //existe nodo 2
+        //(*iti).show();
+        //(*ito).show();
+//        std::cout<< &(*iti)<< " y - ";
+        // Construir Edge(&i,&o,e)
+        Edge<n_value,e_value> edge((*iti),(*ito),dist);
+
+        sf::VertexArray *lines = new sf::VertexArray(sf::Lines,2);
+
+        (*lines)[0].position = sf::Vector2f(i.x,i.y);
+        (*lines)[0].color = sf::Color::White;
+        (*lines)[1].position = sf::Vector2f(o.x,o.y);
+        (*lines)[1].color = sf::Color::White;
+
+        alledges.push_back(lines);
+
+        // iterador List nodos .push_back(edge)
+        (*iti).insert_edge(edge);  
+      } 
+      else{
+        std::cout<<"node 2 not found"<<std::endl;     
+      }
+    }
+    else {
+      std::cout<<"node 1 not found"<<std::endl;
+    }
+    
+  } 
+
+
+
+  void print(){
+
+    int a = 0;
+    for (auto it=_nodes.begin();it!=_nodes.end();++it ){
+        cout<<a<< " is the node: ";
+        (*it).show();
+        cout<<"with prom: "<< (*it).average();
+        cout<<endl;
+        (*it).print_edge();
+        a++;
+
+    }
+  }
+
 };
-
